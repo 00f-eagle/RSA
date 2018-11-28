@@ -12,8 +12,7 @@ class Alice {
     private BigInteger q;
     private BigInteger f_n;
     private BigInteger d;
-    private BigInteger m;
-    private List<BigInteger> decod = new ArrayList<>();
+    private int bitLength = 15;
 
     BigInteger getN() {
         return n;
@@ -24,9 +23,12 @@ class Alice {
     Alice(){
 
 
-        p = RandomGenerate(10);
+        p = RandomGenerate(bitLength);
 
-        q = RandomGenerate(10);
+        q = RandomGenerate(bitLength);
+
+        System.out.println("p " + p);
+        System.out.println("q " + q);
 
         n = p.multiply(q);
 
@@ -46,8 +48,10 @@ class Alice {
 
         do {
             k = k.add(BigInteger.ONE);
-            bigDecimal = (new BigDecimal(k)).multiply(new BigDecimal(f_n)).add(BigDecimal.ONE).divide(new BigDecimal(e), 3,  BigDecimal.ROUND_HALF_UP);
-        }while (!bigDecimal.remainder(BigDecimal.ONE).equals(BigDecimal.ZERO.setScale(3)));
+            bigDecimal = (new BigDecimal(k)).multiply(new BigDecimal(f_n)).add(BigDecimal.ONE).divide(new BigDecimal(e), 6,  BigDecimal.ROUND_HALF_UP);
+        }while (!bigDecimal.remainder(BigDecimal.ONE).equals(BigDecimal.ZERO.setScale(6)));
+
+        System.out.println("k " + k);
 
         d = bigDecimal.toBigInteger();
 
@@ -73,18 +77,35 @@ class Alice {
         return bigInteger;
     }
 
-    public void getMessage(List<BigInteger> codMess){
+    void getMessage(BigInteger c){
 
-        for (int i = 0; i < codMess.size(); i++) {
 
-            m = codMess.get(i).pow(d.intValue()).mod(n);
-            decod.add(m);
+        System.out.println("Get Message: ");
+
+        BigInteger m = BigInteger.ONE;
+        for(BigInteger i = BigInteger.ZERO; !i.equals(d); i = i.add(BigInteger.ONE)){
+            m = c.multiply(m).mod(n);
         }
+        System.out.println(m);
 
-        for (int i = 0; i < decod.size(); i++) {
-            System.out.print(decod.get(i));
+        //This cycle with 'long' is faster than cycle with 'BigInteger'.
+
+        /*
+        m = BigInteger.ONE;
+        long mm = m.longValue();
+        long nn = n.longValue();
+        long dd = d.longValue();
+        long cc = c.intValue();
+
+
+        for (long i = 1; i <= dd; i++) {
+            mm = (cc * mm)%nn;
         }
+        System.out.println(mm);
+        */
+
 
     }
+
 
 }

@@ -7,40 +7,33 @@ class Bob {
 
     private BigInteger n;
     private BigInteger e;
-    private String message;
     private BigInteger m;
-    private BigInteger c;
-    private List<BigInteger> codMess = new ArrayList<>();
-
-
-
-    public List<BigInteger> getC() {
-        return codMess;
-    }
+    private BigInteger c = BigInteger.ONE;
 
     Bob(BigInteger n, BigInteger e){
         this.n = n;
         this.e = e;
     }
 
-    public void Message(){
+    BigInteger getC() {
+        return c;
+    }
+
+    void Message(){
+
 
         System.out.println("Message: ");
         Scanner in = new Scanner(System.in);
 
-        message = in.nextLine();
-        char[] mesChar = message.toCharArray();
+        m = in.nextBigInteger();
 
+        c = m.pow(e.intValue()).mod(n);
 
-        for (int i = 0; i < mesChar.length; i++) {
-
-            c = BigInteger.valueOf(mesChar[i]).pow(e.intValue()).mod(n);
-            codMess.add(c);
-
+/*
+        for(BigInteger i = BigInteger.ZERO; !i.equals(e); i = i.add(BigInteger.ONE)){
+            c = m.multiply(c).mod(n);
         }
-
-
-
+*/
     }
 
 }

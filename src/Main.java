@@ -10,7 +10,6 @@ public class Main {
         bob.Message();
 
         alice.getMessage(bob.getC());
-
     }
 
 }
