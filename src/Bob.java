@@ -5,35 +5,28 @@ import java.util.Scanner;
 
 class Bob {
 
-    private BigInteger n;
-    private BigInteger e;
-    private BigInteger m;
-    private BigInteger c = BigInteger.ONE;
+    private List<BigInteger> c_message = new ArrayList<>();
 
-    Bob(BigInteger n, BigInteger e){
-        this.n = n;
-        this.e = e;
+    List<BigInteger> getC_message(){
+        return c_message;
     }
 
-    BigInteger getC() {
-        return c;
-    }
-
-    void Message(){
-
+    void Message(BigInteger n, BigInteger e){
 
         System.out.println("Message: ");
+        System.out.print(">>> ");
         Scanner in = new Scanner(System.in);
 
-        m = in.nextBigInteger();
+        String message = in.nextLine();
 
-        c = m.pow(e.intValue()).mod(n);
+        char[] mesChar = message.toCharArray();
 
-/*
-        for(BigInteger i = BigInteger.ZERO; !i.equals(e); i = i.add(BigInteger.ONE)){
-            c = m.multiply(c).mod(n);
+        c_message = new ArrayList<>();
+        for(int i = 0; i<mesChar.length;i++) {
+            BigInteger kodChar = BigInteger.valueOf((int) mesChar[i]);
+            c_message.add(kodChar.pow(e.intValue()).mod(n));
         }
-*/
+
     }
 
 }

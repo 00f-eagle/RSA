@@ -1,62 +1,65 @@
+import java.io.*;
 import java.math.BigDecimal;
 import java.math.BigInteger;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 class Alice {
 
-    private BigInteger n;
-    private BigInteger e = BigInteger.TWO;
-    private BigInteger p;
-    private BigInteger q;
-    private BigInteger f_n;
-    private BigInteger d;
     private int bitLength = 15;
 
-    BigInteger getN() {
-        return n;
+    private Map<String, BigInteger> open_key_e;
+    private Map<String, BigInteger> open_key_n;
+    private Map<String, BigInteger> close_key_d;
+
+    BigInteger getOpen_key_e(String name) {
+        return open_key_e.get(name);
     }
 
-    BigInteger getE() { return e; }
+    BigInteger getOpen_key_n(String name) {
+        return open_key_n.get(name);
+    }
 
     Alice(){
 
+        open_key_e = ReadFile("file_E");
+        open_key_n = ReadFile("file_N");
+        close_key_d = ReadFile("file_D");
 
-        p = RandomGenerate(bitLength);
+    }
 
-        q = RandomGenerate(bitLength);
+    void getKey(String name){
 
-        System.out.println("p " + p);
-        System.out.println("q " + q);
+        BigInteger p = RandomGenerate(bitLength);
+        BigInteger q = RandomGenerate(bitLength);
 
-        n = p.multiply(q);
+        BigInteger n = p.multiply(q);
 
-        f_n = p.subtract(BigInteger.ONE).multiply(q.subtract(BigInteger.ONE));
+        BigInteger f_n = p.subtract(BigInteger.ONE).multiply(q.subtract(BigInteger.ONE));
 
+        BigInteger e = BigInteger.TWO;
         while(!e.gcd(f_n).equals(BigInteger.ONE)){
-
             e = e.add(BigInteger.ONE);
-
         }
 
-        System.out.println("Открытый ключ: {" + n + "; " + e + "}");
-
         BigInteger k = BigInteger.ZERO;
-
         BigDecimal bigDecimal;
-
         do {
             k = k.add(BigInteger.ONE);
             bigDecimal = (new BigDecimal(k)).multiply(new BigDecimal(f_n)).add(BigDecimal.ONE).divide(new BigDecimal(e), 6,  BigDecimal.ROUND_HALF_UP);
         }while (!bigDecimal.remainder(BigDecimal.ONE).equals(BigDecimal.ZERO.setScale(6)));
 
-        System.out.println("k " + k);
 
-        d = bigDecimal.toBigInteger();
+        BigInteger d = bigDecimal.toBigInteger();
 
-        System.out.println("Закрытый ключ: {" + n + "; " + d + "}");
 
+        open_key_e.put(name, e);
+        open_key_n.put(name, n);
+        close_key_d.put(name, d);
+
+
+        WriteFile("file_E", open_key_e);
+        WriteFile("file_N", open_key_n);
+        WriteFile("file_D", close_key_d);
     }
 
     private BigInteger RandomGenerate(int bitLength){
@@ -77,35 +80,70 @@ class Alice {
         return bigInteger;
     }
 
-    void getMessage(BigInteger c){
+    void getMessage(List<BigInteger> c_message, String name, String name2){
 
 
-        System.out.println("Get Message: ");
+        StringBuffer message = new StringBuffer();
+        for(int i = 0; i<c_message.size();i++) {
+            BigInteger m = BigInteger.ONE;
+            for(BigInteger j = BigInteger.ZERO; !j.equals(close_key_d.get(name)); j = j.add(BigInteger.ONE)){
+                m = c_message.get(i).multiply(m).mod(open_key_n.get(name));
+            }
 
-        BigInteger m = BigInteger.ONE;
-        for(BigInteger i = BigInteger.ZERO; !i.equals(d); i = i.add(BigInteger.ONE)){
-            m = c.multiply(m).mod(n);
+            char cur = (char) m.intValue();
+            message.append(cur);
         }
-        System.out.println(m);
+        System.out.println(name2 + " получил сообщение от " + name + ": " + message);
 
-        //This cycle with 'long' is faster than cycle with 'BigInteger'.
+        try {
 
-        /*
-        m = BigInteger.ONE;
-        long mm = m.longValue();
-        long nn = n.longValue();
-        long dd = d.longValue();
-        long cc = c.intValue();
-
-
-        for (long i = 1; i <= dd; i++) {
-            mm = (cc * mm)%nn;
+            FileWriter writer = new FileWriter("Messages.txt", true);
+            writer.write(name2 + " получил сообщение от " + name + ": " + message);
+            writer.close();
+        } catch (Exception ex) {
+            System.err.println("Ошибка в файле!");
+            System.exit(1);
         }
-        System.out.println(mm);
-        */
-
 
     }
 
+    private Map<String, BigInteger> ReadFile(String filename){
+
+        Map<String, BigInteger> key = new HashMap<>();
+
+        try{
+            File file=new File(filename);
+            FileInputStream fis=new FileInputStream(file);
+            ObjectInputStream ois=new ObjectInputStream(fis);
+
+            key =(HashMap<String,BigInteger>) ois.readObject();
+
+            ois.close();
+            fis.close();
+        }catch (FileNotFoundException ex){
+            System.err.println("Файл не найден!");
+        }catch (Exception ex){
+            System.err.println("Ошибка в файле!");
+            System.exit(1);
+        }
+        return key;
+    }
+
+    private void WriteFile(String filename, Map<String, BigInteger> key){
+
+
+        try{
+            File file=new File(filename);
+            FileOutputStream fos=new FileOutputStream(file);
+            ObjectOutputStream oos=new ObjectOutputStream(fos);
+
+            oos.writeObject(key);
+            oos.close();
+            fos.close();
+        }catch(Exception ex){
+            System.err.println("Ошибка в файле!");
+            System.exit(1);
+        }
+    }
 
 }
