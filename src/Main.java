@@ -17,7 +17,7 @@ public class Main {
         boolean bool = true;
         try {
 
-            BufferedReader reader = new BufferedReader(new FileReader("Users.txt"));
+            BufferedReader reader = new BufferedReader(new FileReader("res/Users.txt"));
             String line;
             while ((line = reader.readLine()) != null) {
                 users.add(line);
@@ -28,13 +28,9 @@ public class Main {
             System.err.println("Ошибка!");
         }
 
-        for (int i = 0; i < users.size(); i++) {
-            System.out.println(users.get(i));
-        }
-
         try {
 
-            FileWriter writer = new FileWriter("Users.txt", true);
+            FileWriter writer = new FileWriter("res/Users.txt", true);
 
             while (bool) {
                 System.out.println("\nВведите команду:");

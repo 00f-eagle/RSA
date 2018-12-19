@@ -21,9 +21,9 @@ class Alice {
 
     Alice(){
 
-        open_key_e = ReadFile("file_E");
-        open_key_n = ReadFile("file_N");
-        close_key_d = ReadFile("file_D");
+        open_key_e = ReadFile("res/file_E");
+        open_key_n = ReadFile("res/file_N");
+        close_key_d = ReadFile("res/file_D");
 
     }
 
@@ -57,9 +57,9 @@ class Alice {
         close_key_d.put(name, d);
 
 
-        WriteFile("file_E", open_key_e);
-        WriteFile("file_N", open_key_n);
-        WriteFile("file_D", close_key_d);
+        WriteFile("res/file_E", open_key_e);
+        WriteFile("res/file_N", open_key_n);
+        WriteFile("res/file_D", close_key_d);
     }
 
     private BigInteger RandomGenerate(int bitLength){
@@ -85,10 +85,8 @@ class Alice {
 
         StringBuffer message = new StringBuffer();
         for(int i = 0; i<c_message.size();i++) {
-            BigInteger m = BigInteger.ONE;
-            for(BigInteger j = BigInteger.ZERO; !j.equals(close_key_d.get(name)); j = j.add(BigInteger.ONE)){
-                m = c_message.get(i).multiply(m).mod(open_key_n.get(name));
-            }
+
+            BigInteger m = c_message.get(i).modPow(close_key_d.get(name), open_key_n.get(name));
 
             char cur = (char) m.intValue();
             message.append(cur);
@@ -97,8 +95,8 @@ class Alice {
 
         try {
 
-            FileWriter writer = new FileWriter("Messages.txt", true);
-            writer.write(name2 + " получил сообщение от " + name + ": " + message);
+            FileWriter writer = new FileWriter("res/Messages.txt", true);
+            writer.write(name2 + " получил сообщение от " + name + ": " + message + "\n");
             writer.close();
         } catch (Exception ex) {
             System.err.println("Ошибка в файле!");

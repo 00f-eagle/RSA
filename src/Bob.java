@@ -24,7 +24,7 @@ class Bob {
         c_message = new ArrayList<>();
         for(int i = 0; i<mesChar.length;i++) {
             BigInteger kodChar = BigInteger.valueOf((int) mesChar[i]);
-            c_message.add(kodChar.pow(e.intValue()).mod(n));
+            c_message.add(kodChar.modPow(e, n));
         }
 
     }
